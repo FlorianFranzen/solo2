@@ -1372,7 +1372,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2124,7 +2124,7 @@ checksum = "3640c1c38b8e4e43584d8df18be5fc6b0aa314ce6ebf51b53313d4306cca8e46"
 dependencies = [
  "hermit-abi 0.5.2",
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2135,9 +2135,9 @@ checksum = "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695"
 
 [[package]]
 name = "iso7816"
-version = "0.2.0"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b574e1a9ae668e3167a82fe2c62fe629ca60383da01c6f70acb0fb642d9c55f"
+checksum = "cedf53c7a948f16076ec811512f186a90009540f3cdfdb8263737244485a9015"
 dependencies = [
  "heapless 0.9.2",
 ]
@@ -2646,7 +2646,7 @@ dependencies = [
 
 [[package]]
 name = "nrf-nfc"
-version = "2.2362.0"
+version = "2.964.0"
 dependencies = [
  "cortex-m",
  "cty",
@@ -3056,7 +3056,7 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 [[package]]
 name = "piv-authenticator"
 version = "0.7.0"
-source = "git+https://github.com/FlorianFranzen/piv-authenticator?rev=eeb9c5ca7760a57d13c2c83121d0946dfc2429a1#eeb9c5ca7760a57d13c2c83121d0946dfc2429a1"
+source = "git+https://github.com/FlorianFranzen/piv-authenticator?rev=265740fa6f1d1ac1587aff05549d0db0d5b3ba5f#265740fa6f1d1ac1587aff05549d0db0d5b3ba5f"
 dependencies = [
  "apdu-app",
  "cbor-smol",
@@ -3555,7 +3555,7 @@ dependencies = [
 
 [[package]]
 name = "runner"
-version = "2.2362.0"
+version = "2.964.0"
 dependencies = [
  "admin-app",
  "apdu-dispatch",
@@ -3607,7 +3607,7 @@ dependencies = [
 
 [[package]]
 name = "runner-nrf52840dk"
-version = "2.2362.0"
+version = "2.964.0"
 dependencies = [
  "admin-app",
  "apdu-dispatch",
@@ -3705,7 +3705,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4156,7 +4156,7 @@ dependencies = [
 
 [[package]]
 name = "solo-pc"
-version = "2.2362.0"
+version = "2.964.0"
 dependencies = [
  "admin-app",
  "aes",
@@ -4404,7 +4404,7 @@ dependencies = [
  "getrandom 0.4.2",
  "once_cell",
  "rustix",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -5019,7 +5019,7 @@ dependencies = [
 
 [[package]]
 name = "wallet-app"
-version = "2.2362.0"
+version = "2.964.0"
 dependencies = [
  "base64 0.22.1",
  "delog",
@@ -5220,7 +5220,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]

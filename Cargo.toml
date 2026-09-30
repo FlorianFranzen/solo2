@@ -27,7 +27,7 @@ default-members = [
 resolver = "2"
 
 [workspace.package]
-version = "2.2362.0"
+version = "2.964.0"
 edition = "2021"
 rust-version = "1.94"
 authors = [
@@ -122,7 +122,7 @@ admin-app          = { path = "components/admin-app" }
 fido-authenticator = { version = "=0.4.0-rc.3", features = ["dispatch", "chunked", "credential-id-format-v2"] }
 salty              = "0.3"
 secrets-app        = { version = "=0.15.0", features = ["apdu-dispatch", "ctaphid", "log-all"] }
-piv-authenticator  = { version = "=0.7.0", features = ["apdu-dispatch", "mldsa44"] }
+piv-authenticator  = { version = "=0.7.0", features = ["apdu-dispatch"] }
 opcard             = { git = "https://github.com/Nitrokey/opcard-rs", tag = "v1.8.0", features = ["apdu-dispatch", "delog"] }
 wallet-app         = { path = "components/wallet-app", features = ["dispatch", "usbd"] }
 
@@ -196,12 +196,13 @@ trussed-core       = { git = "https://github.com/solokeys/trussed", rev = "2ea71
 # Forked lpc55 (host) with the BCD CalVer-minor>999 version fix, used by the cli.
 # https://github.com/solokeys/lpc55-host/tree/v0.3
 lpc55 = { git = "https://github.com/solokeys/lpc55-host", rev = "4c57336ef18b804ae3bf9440edf7fc846e2b9a2b" }
-# https://github.com/solokeys/apdu-dispatch/tree/v0.5
+# https://github.com/solokeys/apdu-dispatch/tree/v0.5 -- upstream main + "Allow NFC and USB
+# to coexist" (trussed-dev/apdu-dispatch#33), standard ISO 7816 Le handling
 apdu-dispatch = { git = "https://github.com/solokeys/apdu-dispatch", rev = "730af3a3b0168741a65a2b5f472f99ac5e620216" }
-# https://github.com/FlorianFranzen/piv-authenticator/tree/solo2 -- v0.8 (Ed25519,
-# ML-DSA-44) merged with the ecc-import branch: ECC and Ed25519 key import, GET
-# METADATA, pin/touch policies, msroots, SET PIN RETRIES, Yubico client compat
-piv-authenticator = { git = "https://github.com/FlorianFranzen/piv-authenticator", rev = "eeb9c5ca7760a57d13c2c83121d0946dfc2429a1" }
+# https://github.com/FlorianFranzen/piv-authenticator/tree/mtg-integration -- the
+# upstream-bound patch set on top of the merged fixes: ECC key import, GET METADATA,
+# pin/touch policies, msroots, SET PIN RETRIES, Yubico client compat, RID select
+piv-authenticator = { git = "https://github.com/FlorianFranzen/piv-authenticator", rev = "265740fa6f1d1ac1587aff05549d0db0d5b3ba5f" }
 # https://github.com/leetronics/trussed-secrets-app/tree/fix-pin-protection-isolation
 secrets-app = { git = "https://github.com/leetronics/trussed-secrets-app", rev = "30106e147559a72e849aa9ec17690e5167d04f8a" }
 # libcrux-ml-dsa with #[inline(always)] downgraded to #[inline] on the portable

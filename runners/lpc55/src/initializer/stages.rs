@@ -28,7 +28,9 @@ pub struct Clock {
 pub struct Basic {
     pub delay_timer: Timer<hal::peripherals::ctimer::Ctimer0<hal::Enabled>>,
     pub perf_timer: Timer<hal::peripherals::ctimer::Ctimer4<hal::Enabled>>,
-    pub pfr: Pfr<hal::Enabled>,
+    // None on `no-pfr` builds: rev 0A silicon (early EVKs) hardfaults in the
+    // boot ROM's FFR API, so those builds never enable the PFR
+    pub pfr: Option<Pfr<hal::Enabled>>,
 
     pub adc: Option<hal::Adc<hal::Enabled>>,
     pub three_buttons: Option<board::ThreeButtons>,
