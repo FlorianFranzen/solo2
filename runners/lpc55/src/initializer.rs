@@ -231,6 +231,7 @@ impl Initializer {
         false
     }
 
+    #[cfg_attr(feature = "no-pfr", allow(dead_code))]
     fn validate_cfpa(
         pfr: &mut Pfr<hal::Enabled>,
         current_version_maybe: Option<u32>,
@@ -378,12 +379,25 @@ impl Initializer {
             iocon,
         );
 
-        let mut pfr = pfr.enabled(&clocks).unwrap();
-        Self::validate_cfpa(
-            &mut pfr,
-            self.config.secure_firmware_version,
-            self.config.require_prince,
-        );
+        // Rev 0A silicon (early EVKs) hardfaults in the boot ROM's FFR API that
+        // backs the PFR driver, so `no-pfr` builds skip it entirely; nothing
+        // downstream needs it but the USB product string and the CFPA version
+        // bookkeeping, which only matter on real, provisioned keys
+        #[cfg(feature = "no-pfr")]
+        let pfr = {
+            let _ = &pfr;
+            None
+        };
+        #[cfg(not(feature = "no-pfr"))]
+        let pfr = {
+            let mut pfr = pfr.enabled(&clocks).unwrap();
+            Self::validate_cfpa(
+                &mut pfr,
+                self.config.secure_firmware_version,
+                self.config.require_prince,
+            );
+            Some(pfr)
+        };
 
         if self.config.boot_to_bootrom {
             if let Some(three_buttons) = three_buttons.as_mut() {
@@ -611,7 +625,10 @@ impl Initializer {
             // our composite USB device
             let default_product = match usb_config.product_name {
                 UsbProductName::Custom(name) => name,
-                UsbProductName::UsePfr => get_product_string(&mut basic_stage.pfr),
+                UsbProductName::UsePfr => match basic_stage.pfr.as_mut() {
+                    Some(pfr) => get_product_string(pfr),
+                    None => "Solo 2 (no PFR)",
+                },
             };
             let serial_number = get_serial_number();
 

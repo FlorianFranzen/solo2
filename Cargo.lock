@@ -155,7 +155,7 @@ dependencies = [
 [[package]]
 name = "apdu-dispatch"
 version = "0.4.0"
-source = "git+https://github.com/solokeys/apdu-dispatch?rev=730af3a3b0168741a65a2b5f472f99ac5e620216#730af3a3b0168741a65a2b5f472f99ac5e620216"
+source = "git+https://github.com/FlorianFranzen/apdu-dispatch?rev=8d818c8c1f86f0da5788afb459b55feb20b3ddde#8d818c8c1f86f0da5788afb459b55feb20b3ddde"
 dependencies = [
  "apdu-app",
  "delog",
@@ -1372,7 +1372,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2124,7 +2124,7 @@ checksum = "3640c1c38b8e4e43584d8df18be5fc6b0aa314ce6ebf51b53313d4306cca8e46"
 dependencies = [
  "hermit-abi 0.5.2",
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2692,7 +2692,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -3056,7 +3056,7 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 [[package]]
 name = "piv-authenticator"
 version = "0.7.0"
-source = "git+https://github.com/FlorianFranzen/piv-authenticator?rev=eeb9c5ca7760a57d13c2c83121d0946dfc2429a1#eeb9c5ca7760a57d13c2c83121d0946dfc2429a1"
+source = "git+https://github.com/FlorianFranzen/piv-authenticator?rev=3dd220ee09e83f7a054d318307620e54f1f77ef4#3dd220ee09e83f7a054d318307620e54f1f77ef4"
 dependencies = [
  "apdu-app",
  "cbor-smol",
@@ -3705,7 +3705,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4404,7 +4404,7 @@ dependencies = [
  "getrandom 0.4.2",
  "once_cell",
  "rustix",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -5220,7 +5220,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]

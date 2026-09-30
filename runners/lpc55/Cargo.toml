@@ -109,6 +109,9 @@ no-buttons = ["board/no-buttons"]
 
 # Allow resetting FIDO authenticator (and possibly others) even after 10s uptime
 no-reset-time-window = ["fido-authenticator/disable-reset-time-window"]
+# Skip the PFR (boot ROM FFR API): rev 0A silicon, found on early EVKs,
+# hardfaults inside ffr_init. Never use on a real key.
+no-pfr = []
 
 # Format filesystem anyway
 format-filesystem = []
