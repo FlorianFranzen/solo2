@@ -198,8 +198,10 @@ trussed-core       = { git = "https://github.com/solokeys/trussed", rev = "2ea71
 lpc55 = { git = "https://github.com/solokeys/lpc55-host", rev = "4c57336ef18b804ae3bf9440edf7fc846e2b9a2b" }
 # https://github.com/solokeys/apdu-dispatch/tree/v0.5
 apdu-dispatch = { git = "https://github.com/solokeys/apdu-dispatch", rev = "730af3a3b0168741a65a2b5f472f99ac5e620216" }
-# https://github.com/solokeys/piv-authenticator/tree/v0.8
-piv-authenticator = { git = "https://github.com/solokeys/piv-authenticator", rev = "4bd37ef8c962dccf0a2cf65658438171b3d04ebf" }
+# https://github.com/FlorianFranzen/piv-authenticator/tree/solo2 -- v0.8 (Ed25519,
+# ML-DSA-44) merged with the ecc-import branch: ECC and Ed25519 key import, GET
+# METADATA, pin/touch policies, msroots, SET PIN RETRIES, Yubico client compat
+piv-authenticator = { git = "https://github.com/FlorianFranzen/piv-authenticator", rev = "eeb9c5ca7760a57d13c2c83121d0946dfc2429a1" }
 # https://github.com/leetronics/trussed-secrets-app/tree/fix-pin-protection-isolation
 secrets-app = { git = "https://github.com/leetronics/trussed-secrets-app", rev = "30106e147559a72e849aa9ec17690e5167d04f8a" }
 # libcrux-ml-dsa with #[inline(always)] downgraded to #[inline] on the portable
