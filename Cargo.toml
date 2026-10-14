@@ -199,10 +199,11 @@ lpc55 = { git = "https://github.com/solokeys/lpc55-host", rev = "4c57336ef18b804
 # https://github.com/solokeys/apdu-dispatch/tree/v0.5 -- upstream main + "Allow NFC and USB
 # to coexist" (trussed-dev/apdu-dispatch#33), standard ISO 7816 Le handling
 apdu-dispatch = { git = "https://github.com/solokeys/apdu-dispatch", rev = "730af3a3b0168741a65a2b5f472f99ac5e620216" }
-# https://github.com/FlorianFranzen/piv-authenticator/tree/mtg-integration -- the
-# upstream-bound patch set on top of the merged fixes: ECC key import, GET METADATA,
-# pin/touch policies, msroots, SET PIN RETRIES, Yubico client compat, RID select
-piv-authenticator = { git = "https://github.com/FlorianFranzen/piv-authenticator", rev = "0945f9f7fddd6abb4b63b9f6bd47e7953042d876" }
+# https://github.com/FlorianFranzen/piv-authenticator/tree/mind-the-gap -- trussed-dev's
+# main plus every pending PR (ECC import, GET METADATA, policies, msroots, SET PIN RETRIES,
+# Yubico client compatibility, Ed25519/X25519, RSA in the Yubico layout), the same stack
+# the virtual cards in mind-the-gap run
+piv-authenticator = { git = "https://github.com/FlorianFranzen/piv-authenticator", rev = "7800b93e6a87f22d83a2cfcee7fbadccbabb767a" }
 # https://github.com/leetronics/trussed-secrets-app/tree/fix-pin-protection-isolation
 secrets-app = { git = "https://github.com/leetronics/trussed-secrets-app", rev = "30106e147559a72e849aa9ec17690e5167d04f8a" }
 # libcrux-ml-dsa with #[inline(always)] downgraded to #[inline] on the portable
