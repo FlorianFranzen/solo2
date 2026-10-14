@@ -249,7 +249,10 @@ platform!(Board,
 // Trussed extension dispatch — shared with the nrf52840dk runner via `solo-apps`.
 use solo_apps::client::{client_tag, make_client};
 pub use solo_apps::dispatch::{BackendIds, Dispatch, RunnerContext};
-use solo_apps::ndef::{FidoNdefStamp, NdefFidoGate};
+#[cfg(feature = "fido-authenticator")]
+use solo_apps::ndef::FidoNdefStamp;
+#[cfg(feature = "ndef-app")]
+use solo_apps::ndef::NdefFidoGate;
 
 #[derive(Default)]
 pub struct Syscall {}
@@ -321,6 +324,7 @@ pub type FidoConfig = fido_authenticator::Config;
 
 /// FIDO authenticator config — shared with the nrf52840dk runner. `max_resident`
 /// is 100 here; the `nfc_transport` regression guard lives in `solo-apps`.
+#[cfg(feature = "fido-authenticator")]
 pub const FIDO_CONFIG: FidoConfig =
     solo_apps::config::fido_config(build_constants::CARGO_PKG_VERSION, 100);
 #[cfg(feature = "ndef-app")]

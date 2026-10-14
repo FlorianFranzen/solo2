@@ -23,5 +23,10 @@ trussed-fs-info          .workspace = true
 trussed-hkdf             .workspace = true
 trussed-hpke             .workspace = true
 trussed-manage           .workspace = true
+trussed-rsa-alloc        = { workspace = true, optional = true }
 trussed-staging          .workspace = true
 trussed-wrap-key-to-file .workspace = true
+
+[features]
+# The software RSA backend, for the PIV and OpenPGP clients
+rsa = ["dep:trussed-rsa-alloc"]

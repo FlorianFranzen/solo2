@@ -107,6 +107,9 @@ trussed      = { version = "0.2", features = ["aes256-gcm", "default-mechanisms"
 trussed-core = { version = "0.2", features = ["aes256-gcm"] }
 
 # ── Trussed extensions ────────────────────────────────────────────────────────
+# Software RSA for PIV and OpenPGP, as in the Nitrokey 3 firmware; off unless the runner's
+# `rsa` feature asks for it
+trussed-rsa-alloc        = { version = "0.5" }
 trussed-staging          = { version = "0.5", features = ["hkdf", "fs-info", "manage", "chunked", "hpke", "wrap-key-to-file"] }
 trussed-fs-info          = "0.3"
 trussed-hkdf             = "0.4"

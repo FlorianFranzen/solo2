@@ -15,6 +15,9 @@ use trussed_manage::ManageExtension;
 use trussed_staging::{StagingBackend, StagingContext};
 use trussed_wrap_key_to_file::WrapKeyToFileExtension;
 
+#[cfg(feature = "rsa")]
+use trussed_rsa_alloc::SoftwareRsa;
+
 pub struct Dispatch {
     staging_backend: StagingBackend,
     auth_backend: AuthBackend,
@@ -36,6 +39,8 @@ impl Default for Dispatch {
 pub enum BackendIds {
     StagingBackend,
     Auth,
+    #[cfg(feature = "rsa")]
+    SoftwareRsa,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -130,6 +135,8 @@ impl ExtensionDispatch for Dispatch {
                 self.auth_backend
                     .request(&mut ctx.core, &mut ctx.backends.auth, request, resources)
             }
+            #[cfg(feature = "rsa")]
+            BackendIds::SoftwareRsa => SoftwareRsa.request(&mut ctx.core, &mut (), request, resources),
         }
     }
 

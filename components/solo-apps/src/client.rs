@@ -26,9 +26,19 @@ pub static AUTH_BACKENDS: [BackendId<BackendIds>; 2] =
     [BackendId::Custom(BackendIds::Auth), BackendId::Core];
 
 /// piv-authenticator and opcard need Auth + Staging + Core.
+#[cfg(not(feature = "rsa"))]
 pub static PIV_BACKENDS: [BackendId<BackendIds>; 3] = [
     BackendId::Custom(BackendIds::Auth),
     BackendId::Custom(BackendIds::StagingBackend),
+    BackendId::Core,
+];
+
+/// With RSA, the software RSA backend answers the RSA mechanisms before Core is asked.
+#[cfg(feature = "rsa")]
+pub static PIV_BACKENDS: [BackendId<BackendIds>; 4] = [
+    BackendId::Custom(BackendIds::Auth),
+    BackendId::Custom(BackendIds::StagingBackend),
+    BackendId::Custom(BackendIds::SoftwareRsa),
     BackendId::Core,
 ];
 

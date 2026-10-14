@@ -47,6 +47,8 @@ fido-authenticator  = { workspace = true, optional = true }
 secrets-app        = { workspace = true, optional = true }
 piv-authenticator  = { workspace = true, optional = true }
 opcard             = { workspace = true, optional = true }
+# The heap software RSA keeps its big numbers on, only with the `rsa` feature
+embedded-alloc     = { version = "0.6.0", optional = true }
 wallet-app         = { workspace = true, optional = true }
 trussed            .workspace = true
 trussed-core       .workspace = true
@@ -115,6 +117,11 @@ no-pfr = []
 
 # Format filesystem anyway
 format-filesystem = []
+
+# Software RSA keys for PIV and OpenPGP (2048 to 4096 bits), as the Nitrokey 3 firmware has
+rsa = ["solo-apps/rsa", "piv-authenticator?/rsa", "opcard?/rsa4096", "dep:embedded-alloc"]
+# The P-384 mechanism, for PIV keys on that curve
+p384 = ["trussed/p384"]
 
 # PIV always has ML-DSA-44; the backend rides with it. FIDO opts in separately.
 mldsa44-backend = ["trussed/mldsa44", "trussed-core/mldsa44", "ctap-types/mldsa44"]

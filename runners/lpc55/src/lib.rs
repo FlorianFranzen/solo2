@@ -1,4 +1,18 @@
 #![no_std]
+
+/// The heap software RSA allocates its big numbers on; nothing else in the firmware allocates
+#[cfg(feature = "rsa")]
+#[global_allocator]
+static ALLOCATOR: embedded_alloc::LlffHeap = embedded_alloc::LlffHeap::empty();
+
+/// Hand the allocator its memory, once, before any app runs
+#[cfg(feature = "rsa")]
+pub fn init_heap() {
+    use core::mem::MaybeUninit;
+    const HEAP_SIZE: usize = 32 * 1024;
+    static mut HEAP: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
+    unsafe { ALLOCATOR.init(&raw mut HEAP as usize, HEAP_SIZE) }
+}
 include!(concat!(env!("OUT_DIR"), "/build_constants.rs"));
 
 // panic handler, depending on debug/release build

@@ -122,6 +122,9 @@ mod app {
 
     #[init]
     fn init(c: init::Context) -> (SharedResources, LocalResources) {
+        #[cfg(feature = "rsa")]
+        runner::init_heap();
+
         // Bootloop trap: if the previous reset came from the watchdog, jump
         // to MBoot before running init_board so the device stays recoverable.
         // The wdtreset bit (PMC.aoreg1) only auto-clears on POR/BOD, so we

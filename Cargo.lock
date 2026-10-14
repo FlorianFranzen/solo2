@@ -716,6 +716,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "const-default"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b396d1f76d455557e1218ec8066ae14bba60b4b36ecd55577ba979f5db7ecaa"
+
+[[package]]
 name = "const-oid"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1248,6 +1254,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-alloc"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f2de9133f68db0d4627ad69db767726c99ff8585272716708227008d3f1bddd"
+dependencies = [
+ "const-default",
+ "critical-section",
+ "linked_list_allocator",
+ "rlsf",
+]
+
+[[package]]
 name = "embedded-dma"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1372,7 +1390,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2124,7 +2142,7 @@ checksum = "3640c1c38b8e4e43584d8df18be5fc6b0aa314ce6ebf51b53313d4306cca8e46"
 dependencies = [
  "hermit-abi 0.5.2",
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2356,6 +2374,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6d2cec3eae94f9f509c767b45932f1ada8350c4bdb85af2fcab4a3c14807981"
 
 [[package]]
+name = "linked_list_allocator"
+version = "0.10.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b23ac50abb8261cb38c6e2a7192d3302e0836dac1628f6a93b82b4fad185897"
+
+[[package]]
 name = "linux-raw-sys"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2474,7 +2498,7 @@ dependencies = [
  "pkcs11",
  "pkcs11-uri",
  "rand 0.8.6",
- "rsa",
+ "rsa 0.6.1",
  "serde",
  "serde-big-array",
  "serde_json",
@@ -2896,6 +2920,7 @@ dependencies = [
  "trussed-auth",
  "trussed-chunked",
  "trussed-core",
+ "trussed-rsa-types",
  "trussed-wrap-key-to-file",
 ]
 
@@ -2946,6 +2971,18 @@ checksum = "54a73da4b90c4bb139ff5cca5526f796451cfeea58f5915bc739df36803977de"
 dependencies = [
  "cc",
  "cty",
+]
+
+[[package]]
+name = "p384"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe42f1670a52a47d448f14b6a5c61dd78fce51856e68edaa38f7ae3a46b8d6b6"
+dependencies = [
+ "ecdsa 0.16.9",
+ "elliptic-curve 0.13.8",
+ "primeorder",
+ "sha2 0.10.9",
 ]
 
 [[package]]
@@ -3060,6 +3097,7 @@ source = "git+https://github.com/FlorianFranzen/piv-authenticator?rev=7800b93e6a
 dependencies = [
  "apdu-app",
  "cbor-smol",
+ "crypto-bigint 0.5.5",
  "flexiber 0.2.0",
  "heapless 0.9.2",
  "heapless-bytes",
@@ -3073,6 +3111,7 @@ dependencies = [
  "trussed-chunked",
  "trussed-core",
  "trussed-hpke",
+ "trussed-rsa-types",
  "trussed-wrap-key-to-file",
  "untrusted 0.9.0",
 ]
@@ -3086,6 +3125,17 @@ dependencies = [
  "der 0.5.1",
  "pkcs8 0.8.0",
  "zeroize",
+]
+
+[[package]]
+name = "pkcs1"
+version = "0.7.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8ffb9f10fa047879315e6625af03c164b16962a5368d724ed16323b68ace47f"
+dependencies = [
+ "der 0.7.10",
+ "pkcs8 0.10.2",
+ "spki 0.7.3",
 ]
 
 [[package]]
@@ -3442,6 +3492,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "rlsf"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "07393724337be2ee43a9d86164df4505746874a3fa65913374bc6d6a92314362"
+dependencies = [
+ "cfg-if",
+ "const-default",
+ "libc",
+ "rustversion",
+]
+
+[[package]]
 name = "rsa"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3453,10 +3515,31 @@ dependencies = [
  "num-integer",
  "num-iter",
  "num-traits",
- "pkcs1",
+ "pkcs1 0.3.3",
  "pkcs8 0.8.0",
  "rand_core 0.6.4",
  "smallvec",
+ "subtle",
+ "zeroize",
+]
+
+[[package]]
+name = "rsa"
+version = "0.9.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "86ef35bf3e7fe15a53c4ab08a998e42271eab13eb0db224126bc7bc4c4bad96d"
+dependencies = [
+ "const-oid 0.9.6",
+ "digest 0.10.7",
+ "num-bigint-dig",
+ "num-integer",
+ "num-traits",
+ "pkcs1 0.7.5",
+ "pkcs8 0.10.2",
+ "rand_core 0.6.4",
+ "sha2 0.10.9",
+ "signature 2.0.0",
+ "spki 0.7.3",
  "subtle",
  "zeroize",
 ]
@@ -3565,6 +3648,7 @@ dependencies = [
  "defmt",
  "defmt-rtt",
  "delog",
+ "embedded-alloc",
  "fido-authenticator",
  "heapless 0.9.2",
  "littlefs2",
@@ -3705,7 +3789,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4150,6 +4234,7 @@ dependencies = [
  "trussed-hkdf",
  "trussed-hpke",
  "trussed-manage",
+ "trussed-rsa-alloc",
  "trussed-staging",
  "trussed-wrap-key-to-file",
 ]
@@ -4404,7 +4489,7 @@ dependencies = [
  "getrandom 0.4.2",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4639,6 +4724,7 @@ dependencies = [
  "littlefs2",
  "littlefs2-core",
  "p256-cortex-m4",
+ "p384",
  "postcard",
  "rand_chacha",
  "rand_core 0.6.4",
@@ -4744,6 +4830,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfab5a172be33bcbbdb7362842a887f84bb594af6f3ccd248739673f1e890c42"
 dependencies = [
  "littlefs2-core",
+ "serde",
+ "trussed-core",
+]
+
+[[package]]
+name = "trussed-rsa-alloc"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7aacf018840cb3ad6cb18ab3fbf9dc56e686e2c00e46fabccc4bc6436ce19374"
+dependencies = [
+ "delog",
+ "heapless-bytes",
+ "num-bigint-dig",
+ "rsa 0.9.3",
+ "trussed",
+ "trussed-core",
+ "trussed-rsa-types",
+]
+
+[[package]]
+name = "trussed-rsa-types"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "808ceb762811c8e5373c36a68e75dda381e33e71e3edab283c01d0858afae818"
+dependencies = [
+ "heapless-bytes",
+ "postcard",
  "serde",
  "trussed-core",
 ]
@@ -5220,7 +5333,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
