@@ -6,10 +6,13 @@
 static ALLOCATOR: embedded_alloc::LlffHeap = embedded_alloc::LlffHeap::empty();
 
 /// Hand the allocator its memory, once, before any app runs
+///
+/// An RSA-4096 operation, PIV or OpenPGP, reaches 26 KiB of it. Every KiB here comes out of
+/// the stack, which `init` alone nearly fills, so the margin stays modest.
 #[cfg(feature = "rsa")]
 pub fn init_heap() {
     use core::mem::MaybeUninit;
-    const HEAP_SIZE: usize = 32 * 1024;
+    const HEAP_SIZE: usize = 40 * 1024;
     static mut HEAP: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
     unsafe { ALLOCATOR.init(&raw mut HEAP as usize, HEAP_SIZE) }
 }
@@ -17,7 +20,45 @@ include!(concat!(env!("OUT_DIR"), "/build_constants.rs"));
 
 // panic handler, depending on debug/release build
 // BUT: need to run in release anyway, to have USB work
+#[cfg(not(feature = "panic-record"))]
 use panic_halt as _;
+
+/// Where the last panic happened, `file:line`, for a debugger to read off a test image
+/// without logging. Only the location: formatting the message would pull every panic string
+/// and the formatting machinery into an image that has no room for them.
+#[cfg(feature = "panic-record")]
+#[no_mangle]
+#[used]
+pub static mut PANIC_LOCATION: [u8; 256] = [0; 256];
+
+/// Halt like `panic_halt`, after recording where in [`PANIC_LOCATION`]
+#[cfg(feature = "panic-record")]
+#[panic_handler]
+fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
+    // SAFETY: written only here, once, with every other context stopped by the panic
+    let buffer = unsafe { &mut *core::ptr::addr_of_mut!(PANIC_LOCATION) };
+    if let Some(location) = info.location() {
+        let mut line = [0u8; 10];
+        let mut digits = 0;
+        let mut value = location.line();
+        loop {
+            line[digits] = b'0' + (value % 10) as u8;
+            digits += 1;
+            value /= 10;
+            if value == 0 {
+                break;
+            }
+        }
+        let text = location.file().as_bytes().iter().copied().chain(core::iter::once(b':'));
+        let text = text.chain(line[..digits].iter().rev().copied());
+        for (slot, byte) in buffer.iter_mut().zip(text) {
+            *slot = byte;
+        }
+    }
+    loop {
+        core::hint::spin_loop();
+    }
+}
 // use panic_semihosting as _;
 
 use board::clock_controller;

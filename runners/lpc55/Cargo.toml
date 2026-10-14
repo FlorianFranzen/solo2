@@ -119,7 +119,9 @@ no-pfr = []
 format-filesystem = []
 
 # Software RSA keys for PIV and OpenPGP (2048 to 4096 bits), as the Nitrokey 3 firmware has
-rsa = ["solo-apps/rsa", "piv-authenticator?/rsa", "opcard?/rsa4096", "dep:embedded-alloc"]
+rsa = ["solo-apps/rsa-raw", "piv-authenticator?/rsa", "opcard?/rsa4096", "dep:embedded-alloc"]
+# Record where a panic happened in PANIC_LOCATION, for test images without logging
+panic-record = []
 # The P-384 mechanism, for PIV keys on that curve
 p384 = ["trussed/p384"]
 

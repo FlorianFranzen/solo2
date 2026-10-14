@@ -181,7 +181,15 @@ pub type FlashStorage = PrinceFilesystem;
 pub mod usb;
 pub use usb::{CcidClass, CtapHidClass, EnabledUsbPeripheral, SerialClass, UsbClasses};
 
-// 8KB of RAM
+/// Blocks of the volatile store, about 10 KiB in stock builds.
+///
+/// PIV unseals a key into it for every use, and an unsealed RSA-3072 or RSA-4096 key does
+/// not fit next to the rest in the stock size: the store fails and the card answers 6400.
+#[cfg(feature = "rsa")]
+const VOLATILE_BLOCK_COUNT: usize = 156;
+#[cfg(not(feature = "rsa"))]
+const VOLATILE_BLOCK_COUNT: usize = 8192 / 104;
+
 const_ram_storage!(
     name = VolatileStorage,
     erase_value = 0xff,
@@ -192,7 +200,7 @@ const_ram_storage!(
     // https://git.io/JeHp9
     block_size = 128,
     // block_size=128,
-    block_count = 8192 / 104,
+    block_count = VOLATILE_BLOCK_COUNT,
     lookahead_size_ty = consts::U8,
 );
 
