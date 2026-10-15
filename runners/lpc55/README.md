@@ -22,3 +22,74 @@ the shipping **[Solo 2](https://solokeys.com)**. It runs on two boards:
 make build-dev      # EVK / development build (plain storage)
 make build-release  # Solo 2 Hacker, PRINCE-encrypted (provisioned devices)
 ```
+
+## Space budget
+
+Measured on `hw/solo2` builds for the EVK board (the Solo 2 board differs by at most
+0.4 KiB of flash and 1.5 KiB of RAM), all sizes in KiB. The firmware region ends at the
+filesystem boundary, 0x80000, so an image has 512 KiB.
+
+### Flash per feature
+
+What each feature adds to the platform, which is the runner with `admin-app` (222.4):
+
+| Feature | KiB | Mostly |
+|---|---|---|
+| `p384` | +120.1 | the `p384` crate's fiat-crypto field code (93.3), SHA-384/512 (10.8) |
+| `fido-authenticator` | +77.7 | the app, CBOR, ctap-types |
+| `rsa` | +66.0 | num-bigint-dig, trussed's allocating mechanisms, der, pkcs8, rsa |
+| `panic-record` | +52.8 | every panic location string, which `panic_halt` drops |
+| `hacker` | +50.0 | ML-DSA-44 FIDO and the wallet |
+| `piv-authenticator` | +48.7 | |
+| `opcard` | +43.9 | 11.5 shared with PIV when both are in |
+| `oath` | +26.7 | |
+| `mldsa44-backend` | +25.2 | |
+
+The release profile is already at `opt-level = "z"`, LTO, one codegen unit and the machine
+outliner; `p384` gets no smaller at other opt-levels.
+
+### RAM and stack
+
+flip-link puts the statics at the top of the 272 KiB of RAM and the stack below them, so
+every static comes out of the stack, and the stack is what runs out first. `init` builds the
+large RTIC resources by value and needs about 125 KiB of stack in an image without FIDO and
+about 169 KiB with it.
+
+| Static | KiB |
+|---|---|
+| RSA heap (`rsa` only); an RSA-4096 operation peaks at 26 | 40.0 |
+| volatile store, 156 × 128 B with `rsa`, 78 × 128 B without | 19.6 / 9.75 |
+| trussed service | 11.6 |
+| USB classes | 11.1 |
+| APDU dispatch, its 7609-byte response buffer | 7.5 |
+| CTAPHID channel | 7.4 |
+| external store and its littlefs state (RAM on the EVK) | 8.2 |
+
+PIV unseals a key into the volatile store for every use. An unsealed RSA-3072 or RSA-4096
+key does not fit next to the rest in the 78 blocks of a build without `rsa`, and the card
+answers 6400 to the signature or import.
+
+### Images
+
+| Image | Flash | Spare | Stack | Boots |
+|---|---|---|---|---|
+| stock default | 424.5 | 87.5 | 192.9 | yes, `init` needs ≈169 |
+| FIDO, PIV, OpenPGP | 374.2 | 137.8 | ≈197 | yes |
+| FIDO, PIV, OpenPGP, `rsa` | 441.9 | 70.1 | ≈147 | no, `init` needs ≈169 |
+| PIV, OpenPGP, `rsa`, `p384` (no FIDO) | 488.6 | 23.4 | 150.1 | yes, `init` needs ≈125 |
+| PIV, `rsa`, `p384` | 455.2 | 56.8 | ≈150 | yes |
+| OpenPGP, `rsa` | 332.1 | 179.9 | ≈150 | yes |
+| stock, `p384` | 543.6 | −31.6 | | does not fit |
+
+The card-only image (`--no-default-features --features
+board-lpcxpresso55,no-encrypted-storage,no-pfr,admin-app,opcard,piv-authenticator,rsa,p384`)
+passes mind-the-gap's PIV and OpenPGP suites on every algorithm.
+
+### Where room could come from
+
+- Build the `init` resources in place (`StaticCell::init_with`) instead of returning them by
+  value: about 60 to 100 KiB of stack, enough for the RSA heap next to FIDO.
+- Stop apdu-dispatch copying its 7609-byte buffers by value: 20 to 40 KiB of stack.
+- Leave `p384` out, or move P-384 to the CASPER accelerator: 120 KiB of flash.
+- Leave ML-DSA-44 out of card images: 25 KiB of flash and its 114 KiB signing stack peak.
+- RSA on crypto-bigint or CASPER modexp: about 30 KiB of flash and a smaller heap.
