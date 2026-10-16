@@ -57,18 +57,18 @@ mod app {
     struct SharedResources {
         /// Dispatches APDUs from contact+contactless interface to apps.
         #[lock_free]
-        apdu_dispatch: runner::types::ApduDispatch,
+        apdu_dispatch: &'static mut runner::types::ApduDispatch,
 
         /// Dispatches CTAPHID messages to apps.
         #[lock_free]
-        ctaphid_dispatch: runner::types::CtaphidDispatch,
+        ctaphid_dispatch: &'static mut runner::types::CtaphidDispatch,
 
         /// The Trussed service, used by all applications.
-        trussed: runner::types::Trussed,
+        trussed: &'static mut runner::types::Trussed,
 
         /// All the applications that the device serves.
         #[lock_free]
-        apps: runner::types::Apps,
+        apps: &'static mut runner::types::Apps,
 
         /// Wallet hardware-wallet app + its HID dispatch. Kept off the
         /// `apps` lock so its blocking sign path doesn't stall other apps.
@@ -77,10 +77,10 @@ mod app {
         wallet: runner::types::WalletSlot,
 
         /// The USB driver classes
-        usb_classes: Option<runner::types::UsbClasses>,
+        usb_classes: Option<&'static mut runner::types::UsbClasses>,
         /// The NFC driver
         #[lock_free]
-        contactless: Option<runner::types::Iso14443>,
+        contactless: Option<&'static mut runner::types::Iso14443>,
 
         /// This timer is used while developing NFC, to time how long things took,
         /// and to make sure logs are not flushed in the middle of NFC transactions.

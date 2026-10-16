@@ -110,13 +110,13 @@ pub fn init_board(
     device_peripherals: hal::raw::Peripherals,
 ) -> (
     // types::Authenticator,
-    types::ApduDispatch,
-    types::CtaphidDispatch,
-    types::Trussed,
-    types::Apps,
+    &'static mut types::ApduDispatch,
+    &'static mut types::CtaphidDispatch,
+    &'static mut types::Trussed,
+    &'static mut types::Apps,
     types::WalletSlot,
-    Option<types::UsbClasses>,
-    Option<types::Iso14443>,
+    Option<&'static mut types::UsbClasses>,
+    Option<&'static mut types::Iso14443>,
     types::PerformanceTimer,
     Option<clock_controller::DynamicClockController>,
     types::NfcWaitExtender,
@@ -241,19 +241,24 @@ pub fn init_board(
         );
     }
 
-    let apps = types::Apps::new(
-        &mut everything.trussed,
-        #[cfg(feature = "provisioner-app")]
-        {
-            types::ProvisionerNonPortable {
-                store,
-                stolen_filesystem: unsafe { &mut *internal_fs },
-                nfc_powered: _is_passive_mode,
-            }
-        },
-        #[cfg(any(feature = "admin-app", feature = "oath-export"))]
-        store,
-    );
+    // Built in its static, not on the stack and then moved there: `init` already holds
+    // most of the RAM's stack, and every large resource passed out by value is one more copy
+    static APPS: static_cell::StaticCell<types::Apps> = static_cell::StaticCell::new();
+    let apps = APPS.init_with(|| {
+        types::Apps::new(
+            &mut *everything.trussed,
+            #[cfg(feature = "provisioner-app")]
+            {
+                types::ProvisionerNonPortable {
+                    store,
+                    stolen_filesystem: unsafe { &mut *internal_fs },
+                    nfc_powered: _is_passive_mode,
+                }
+            },
+            #[cfg(any(feature = "admin-app", feature = "oath-export"))]
+            store,
+        )
+    });
 
     // Wallet lives outside `Apps`: its sign path blocks on user presence and
     // must not hold the shared `apps` lock for the duration. Present only when
@@ -263,7 +268,7 @@ pub fn init_board(
         .usb
         .wallet_responder
         .take()
-        .map(|responder| types::Wallet::new(&mut everything.trussed, responder));
+        .map(|responder| types::Wallet::new(&mut *everything.trussed, responder));
     #[cfg(not(feature = "wallet"))]
     let wallet: types::WalletSlot = ();
 

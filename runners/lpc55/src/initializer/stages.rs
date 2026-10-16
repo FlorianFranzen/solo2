@@ -39,14 +39,14 @@ pub struct Basic {
 /// share Spi0 via `board::shared_spi`; `iso14443` is `None` only when the NFC
 /// chip is absent.
 pub struct Nfc {
-    pub iso14443: Option<nfc_device::Iso14443<'static, board::nfc::NfcFrontend>>,
+    pub iso14443: Option<&'static mut nfc_device::Iso14443<'static, board::nfc::NfcFrontend>>,
 
     pub contactless_responder: Option<apdu_dispatch::interchanges::Responder<'static>>,
 }
 
 /// Initialized USB device + USB classes, Dynamic Clock controller.
 pub struct Usb {
-    pub usb_classes: Option<types::UsbClasses>,
+    pub usb_classes: Option<&'static mut types::UsbClasses>,
 
     pub contact_responder: Option<apdu_dispatch::interchanges::Responder<'static>>,
     pub ctaphid_responder:
@@ -57,8 +57,8 @@ pub struct Usb {
 
 /// Initialized apdu + ctaphid dispatches
 pub struct Interfaces {
-    pub apdu_dispatch: types::ApduDispatch,
-    pub ctaphid_dispatch: types::CtaphidDispatch,
+    pub apdu_dispatch: &'static mut types::ApduDispatch,
+    pub ctaphid_dispatch: &'static mut types::CtaphidDispatch,
 }
 
 /// Initialized flash driver, prince, RNG.
@@ -75,8 +75,11 @@ pub struct Filesystem {
 }
 
 /// Initialized everything that is needed, minus unecessary intermediates
+///
+/// The large objects live in statics and are handed on by reference: every move by value is
+/// another copy on the stack of `init`, which otherwise needs most of the RAM.
 pub struct All {
-    pub trussed: types::Trussed,
+    pub trussed: &'static mut types::Trussed,
     pub filesystem: Filesystem,
     pub usb: Usb,
     pub interfaces: Interfaces,

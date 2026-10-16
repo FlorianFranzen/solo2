@@ -300,6 +300,9 @@ impl Initializer {
         board::nfc::try_setup(gpio, iocon, nfc_irq, delay_timer, force_nfc_reconfig)
     }
 
+    // Each stage keeps a frame of its own, so their temporaries do not add up in the frame of
+    // `initialize_all`
+    #[inline(never)]
     pub fn initialize_clocks(
         &mut self,
         iocon: hal::Iocon<Unknown>,
@@ -329,6 +332,7 @@ impl Initializer {
     }
 
     #[allow(clippy::too_many_arguments)]
+    #[inline(never)]
     pub fn initialize_basic(
         &mut self,
         clock_stage: &mut stages::Clock,
@@ -414,6 +418,7 @@ impl Initializer {
         }
     }
 
+    #[inline(never)]
     pub fn initialize_nfc(
         &mut self,
         clock_stage: &mut stages::Clock,
@@ -477,10 +482,12 @@ impl Initializer {
             None
         };
 
-        let mut iso14443: Option<types::Iso14443> = None;
+        let mut iso14443: Option<&'static mut types::Iso14443> = None;
 
         if let Some(chip) = nfc_chip {
-            iso14443 = Some(nfc_device::Iso14443::new(chip, contactless_requester))
+            static ISO14443: StaticCell<types::Iso14443> = StaticCell::new();
+            iso14443 =
+                Some(ISO14443.init_with(|| nfc_device::Iso14443::new(chip, contactless_requester)))
         } else if self.is_nfc_passive {
             info!("Shouldn't get passive signal when there's no chip!");
         }
@@ -503,6 +510,7 @@ impl Initializer {
         }
     }
 
+    #[inline(never)]
     pub fn initialize_usb(
         &mut self,
         clock_stage: &mut stages::Clock,
@@ -528,7 +536,7 @@ impl Initializer {
             basic_stage.perf_timer.elapsed().0 / 1000
         );
 
-        let mut usb_classes: Option<types::UsbClasses> = None;
+        let mut usb_classes: Option<&'static mut types::UsbClasses> = None;
         #[cfg(feature = "wallet")]
         let mut wallet_responder: Option<types::WalletResponder> = None;
 
@@ -676,13 +684,16 @@ impl Initializer {
                 .composite_with_iads()
                 .build();
 
-            usb_classes = Some(types::UsbClasses::new(
-                usbd,
-                ccid,
-                ctaphid,
-                #[cfg(feature = "wallet")]
-                wallet_hid,
-            ));
+            static USB_CLASSES: StaticCell<types::UsbClasses> = StaticCell::new();
+            usb_classes = Some(USB_CLASSES.init_with(|| {
+                types::UsbClasses::new(
+                    usbd,
+                    ccid,
+                    ctaphid,
+                    #[cfg(feature = "wallet")]
+                    wallet_hid,
+                )
+            }));
         }
 
         // Cancel any possible outstanding use in delay timing
@@ -697,20 +708,23 @@ impl Initializer {
         }
     }
 
+    #[inline(never)]
     pub fn initialize_interfaces(
         &mut self,
         nfc_stage: &mut stages::Nfc,
         usb_stage: &mut stages::Usb,
     ) -> stages::Interfaces {
         info!("making interfaces");
-        let apdu_dispatch = types::ApduDispatch::new(
-            usb_stage.contact_responder.take().unwrap(),
-            nfc_stage.contactless_responder.take().unwrap(),
-        );
-        let ctaphid_dispatch = types::CtaphidDispatch::with_interrupt(
-            usb_stage.ctaphid_responder.take().unwrap(),
-            Some(&CTAPHID_INTERRUPT),
-        );
+        static APDU_DISPATCH: StaticCell<types::ApduDispatch> = StaticCell::new();
+        static CTAPHID_DISPATCH: StaticCell<types::CtaphidDispatch> = StaticCell::new();
+        let contact_responder = usb_stage.contact_responder.take().unwrap();
+        let contactless_responder = nfc_stage.contactless_responder.take().unwrap();
+        let apdu_dispatch = APDU_DISPATCH
+            .init_with(|| types::ApduDispatch::new(contact_responder, contactless_responder));
+        let ctaphid_responder = usb_stage.ctaphid_responder.take().unwrap();
+        let ctaphid_dispatch = CTAPHID_DISPATCH.init_with(|| {
+            types::CtaphidDispatch::with_interrupt(ctaphid_responder, Some(&CTAPHID_INTERRUPT))
+        });
 
         stages::Interfaces {
             apdu_dispatch,
@@ -718,6 +732,7 @@ impl Initializer {
         }
     }
 
+    #[inline(never)]
     pub fn initialize_flash(
         &mut self,
         rng: hal::peripherals::rng::Rng<Unknown>,
@@ -742,6 +757,7 @@ impl Initializer {
         }
     }
 
+    #[inline(never)]
     pub fn initialize_filesystem(
         &mut self,
         clock_stage: &mut stages::Clock,
@@ -975,6 +991,7 @@ impl Initializer {
         }
     }
 
+    #[inline(never)]
     pub fn initialize_trussed(
         &mut self,
         clock_stage: &mut stages::Clock,
@@ -982,7 +999,7 @@ impl Initializer {
         flash_stage: &mut stages::Flash,
         filesystem_stage: &mut stages::Filesystem,
         rtc: hal::peripherals::rtc::Rtc<Unknown>,
-    ) -> types::Trussed {
+    ) -> &'static mut types::Trussed {
         let syscon = &mut self.syscon;
         let pmc = &mut self.pmc;
         let clocks = clock_stage.clocks;
@@ -1006,9 +1023,13 @@ impl Initializer {
         let rng = flash_stage.rng.take().unwrap();
         let store = filesystem_stage.store;
         let board = types::Board::new(rng, store, solobee_interface);
-        let service = trussed::service::Service::with_dispatch(board, types::Dispatch::default());
-
-        types::Trussed::new(service)
+        static TRUSSED: StaticCell<types::Trussed> = StaticCell::new();
+        TRUSSED.init_with(|| {
+            types::Trussed::new(trussed::service::Service::with_dispatch(
+                board,
+                types::Dispatch::default(),
+            ))
+        })
     }
 
     #[inline(never)]
