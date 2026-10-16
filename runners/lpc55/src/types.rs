@@ -546,10 +546,14 @@ impl Apps {
                 Some(&PIV_INTERRUPT),
                 &solo_apps::client::PIV_BACKENDS,
             );
+            // The device uuid makes the card's GUID, and with a PIV app that derives its serial
+            // from it the serial as well, per device: without it every Solo 2 reports the same
+            // serial, and clients that tell cards apart by it see one card
             PivApp::new(
                 client,
                 piv_authenticator::Options::default()
-                    .storage(trussed_core::types::Location::External),
+                    .storage(trussed_core::types::Location::External)
+                    .uuid(Some(hal::uuid())),
             )
         };
 
