@@ -52,8 +52,9 @@ outliner; `p384` gets no smaller at other opt-levels.
 
 flip-link puts the statics at the top of the 272 KiB of RAM and the stack below them, so
 every static comes out of the stack, and the stack is what runs out first. `init` builds the
-large RTIC resources by value and needs about 125 KiB of stack in an image without FIDO and
-about 169 KiB with it.
+large RTIC resources in their statics and needs 33 to 39 KiB of stack in every image. The
+deepest paths are at runtime: idle through apdu-dispatch about 51 KiB, and the trussed
+service about 114 KiB when it signs with ML-DSA-44, on top of the app that asked for it.
 
 | Static | KiB |
 |---|---|
@@ -71,15 +72,21 @@ answers 6400 to the signature or import.
 
 ### Images
 
-| Image | Flash | Spare | Stack | Boots |
-|---|---|---|---|---|
-| stock default | 424.5 | 87.5 | 192.9 | yes, `init` needs ≈169 |
-| FIDO, PIV, OpenPGP | 374.2 | 137.8 | ≈197 | yes |
-| FIDO, PIV, OpenPGP, `rsa` | 441.9 | 70.1 | ≈147 | no, `init` needs ≈169 |
-| PIV, OpenPGP, `rsa`, `p384` (no FIDO) | 488.6 | 23.4 | 150.1 | yes, `init` needs ≈125 |
-| PIV, `rsa`, `p384` | 455.2 | 56.8 | ≈150 | yes |
-| OpenPGP, `rsa` | 332.1 | 179.9 | ≈150 | yes |
-| stock, `p384` | 543.6 | −31.6 | | does not fit |
+| Image | Flash | Spare | Stack |
+|---|---|---|---|
+| stock default | 423.3 | 88.7 | 193.0 |
+| stock, `rsa` | 489.8 | 22.2 | 143.0 |
+| FIDO, PIV, OpenPGP | 374.2 | 137.8 | ≈197 |
+| FIDO, PIV, OpenPGP, `rsa` | 441.0 | 71.0 | 147.3 |
+| PIV, OpenPGP, `rsa`, `p384` (no FIDO) | 487.8 | 24.2 | 150.2 |
+| PIV, `rsa`, `p384` | 455.2 | 56.8 | ≈150 |
+| OpenPGP, `rsa` | 332.1 | 179.9 | ≈150 |
+| stock, `p384` | 543.6 | −31.6 | does not fit |
+
+Every image that fits boots. With `rsa` and ML-DSA-44 together, as in the stock image with
+`rsa`, the worst case at runtime (idle's 51 KiB, then the service's 114 KiB for an ML-DSA-44
+signature) is more than the 143 KiB left; no ML-DSA-44 signature has been tried on such an
+image.
 
 The card-only image (`--no-default-features --features
 board-lpcxpresso55,no-encrypted-storage,no-pfr,admin-app,opcard,piv-authenticator,rsa,p384`)
@@ -87,8 +94,6 @@ passes mind-the-gap's PIV and OpenPGP suites on every algorithm.
 
 ### Where room could come from
 
-- Build the `init` resources in place (`StaticCell::init_with`) instead of returning them by
-  value: about 60 to 100 KiB of stack, enough for the RSA heap next to FIDO.
 - Stop apdu-dispatch copying its 7609-byte buffers by value: 20 to 40 KiB of stack.
 - Leave `p384` out, or move P-384 to the CASPER accelerator: 120 KiB of flash.
 - Leave ML-DSA-44 out of card images: 25 KiB of flash and its 114 KiB signing stack peak.
